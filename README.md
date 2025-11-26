@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/nswbmw/nana/master/nana.png" width="100%" alt="Nana"/>
+</div>
+
 ## Nana
 
 A minimal validator for any JavaScript environment.
