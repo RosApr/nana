@@ -59,9 +59,14 @@ export function createValidator (name, handler) {
 }
 
 export function pipe (...validators) {
-  return createValidator('pipe', (value, ctx) =>
-    validators.reduce((v, validator) => validator(v, ctx), value)
-  )()
+  return createValidator('pipe', (value, ctx) => {
+    for (const validator of validators) {
+      if (ctx.__skipNext) break
+      value = validator(value, ctx)
+    }
+    delete ctx.__skipNext
+    return value
+  })()
 }
 
 export function transform (fn) {
@@ -72,11 +77,8 @@ export function check (fn, msg) {
   const expected = fn.name || 'check'
   return createValidator(expected, (value, ctx) => {
     const result = fn(value, ctx)
-
     if (result === true) return value
-
-    const message = msg || `(${ctx.path}: ${formatValue(value)}) ✖ ${expected}`
-    throw new Error(message)
+    throw new Error(msg || `(${ctx.path}: ${formatValue(value)}) ✖ ${expected}`)
   })()
 }
 
@@ -100,6 +102,25 @@ export function validate (schema, value, rootPath = '$') {
     }
   }
 }
+
+export const required = createValidator('required', (value, ctx, args) => {
+  const [msg] = args
+
+  if (value == null) {
+    throw new Error(msg || `(${ctx.path}: ${formatValue(value)}) ✖ required`)
+  }
+
+  return value
+})
+
+export const optional = createValidator('optional', (value, ctx, args) => {
+  if (value == null) {
+    ctx.__skipNext = true
+    return value
+  }
+
+  return value
+})
 
 export const string = createValidator('string', (value, ctx, args) => {
   const [msg] = args

@@ -44,6 +44,10 @@ export function validate<T = any> (
   rootPath?: string
 ): ValidateResult<T>
 
+export const required: (msg?: string) => Validator<any>
+
+export const optional: () => Validator<any>
+
 export const string: (msg?: string) => Validator<string>
 
 export const number: (msg?: string) => Validator<number>
