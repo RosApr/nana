@@ -61,10 +61,10 @@ export function createValidator (name, handler) {
 export function pipe (...validators) {
   return createValidator('pipe', (value, ctx) => {
     for (const validator of validators) {
-      if (ctx.__skipNext) break
+      if (ctx.__abortPipe) break
       value = validator(value, ctx)
     }
-    delete ctx.__skipNext
+    delete ctx.__abortPipe
     return value
   })()
 }
@@ -115,7 +115,7 @@ export const required = createValidator('required', (value, ctx, args) => {
 
 export const optional = createValidator('optional', (value, ctx, args) => {
   if (value == null) {
-    ctx.__skipNext = true
+    ctx.__abortPipe = true
     return value
   }
 
