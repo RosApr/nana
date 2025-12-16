@@ -300,6 +300,36 @@ describe('required and optional', () => {
   })
 })
 
+describe('required and optional', () => {
+  test('required passes for non-null and fails for null with default message', () => {
+    const ctxOk = makeCtx(null, null, 'x')
+    expect(required()('x', ctxOk)).toBe('x')
+
+    const ctxBad = makeCtx(null, 'r', null)
+    expect(() => required()(null, ctxBad)).toThrow('required')
+  })
+
+  test('required uses custom message when provided', () => {
+    const ctx = makeCtx(null, null, undefined)
+    expect(() => required('must not be null or undefined')(undefined, ctx)).toThrow('must not be null or undefined')
+  })
+
+  test('optional skips following validators in pipe when value is null', () => {
+    const schema = pipe(
+      optional(),
+      string()
+    )
+
+    const resNull = validate(schema, null)
+    expect(resNull.valid).toBe(true)
+    expect(resNull.result).toBeNull()
+
+    const resValue = validate(schema, 'ok')
+    expect(resValue.valid).toBe(true)
+    expect(resValue.result).toBe('ok')
+  })
+})
+
 describe('object validator', () => {
   test('fails when not plain object', () => {
     expect(() => object({})(
