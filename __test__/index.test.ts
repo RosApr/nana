@@ -37,7 +37,7 @@ describe('formatValue', () => {
     const s = Symbol('x')
     expect(formatValue(s)).toBe(s.toString())
 
-    function foo() { }
+    function foo () { }
     expect(formatValue(foo)).toBe('[Function: foo]')
 
     const bar = function () { }
@@ -60,7 +60,7 @@ describe('formatValue', () => {
   })
 
   test('other objects fallback to Object.prototype.toString', () => {
-    class MyClass { }
+    class MyClass {}
     const v = new MyClass()
     expect(formatValue(v)).toBe(Object.prototype.toString.call(v))
   })
@@ -186,7 +186,7 @@ describe('check', () => {
   })
 
   test('fails with default message when fn returns false and no msg', () => {
-    const namedFn = function isPositive(v) { return v > 0 }
+    const namedFn = function isPositive (v) { return v > 0 }
     const schema = pipe(
       number(),
       check(namedFn)
@@ -394,7 +394,6 @@ describe('array validator', () => {
 
 describe('complex scene', () => {
   test('nested object array', () => {
-
     const allActions = [
       'action_1',
       'action_2',
@@ -407,44 +406,44 @@ describe('complex scene', () => {
       'action_2'
     ] as const
     const platforms = ['platform_1', 'platform_2'] as const
-    const serviceCheck = check<number>(function serviceCheck(value, ctx) {
+    const serviceCheck = check<number>(function serviceCheck (value, ctx) {
       return value > 0
     })
     const childServiceSchema = object({
-      platform: check<(typeof platforms)[number]>(function platformCheck(value, ctx) {
+      platform: check<(typeof platforms)[number]>(function platformCheck (value, ctx) {
         return platforms.includes(value)
       }),
       service: pipe(number(), serviceCheck),
-      weight: pipe(number(), check<number>(function weightCheck(value, ctx) {
+      weight: pipe(number(), check<number>(function weightCheck (value, ctx) {
         return value >= 0
       }))
     })
     const mainServiceSchema = object({
-      action: check<(typeof allActions)[number]>(function mainActionCheck(value, ctx) {
+      action: check<(typeof allActions)[number]>(function mainActionCheck (value, ctx) {
         return allActions.includes(value)
       }),
       service: pipe(number(), serviceCheck),
       childServices: pipe(
-        check(function childServicesLengthCheck(value, ctx) {
+        check(function childServicesLengthCheck (value, ctx) {
           return value.length > 0
         }, 'childServices must not be empty'),
-        array(childServiceSchema),
+        array(childServiceSchema)
       )
     })
     type MainServiceSchema = InferOutput<typeof mainServiceSchema>
 
     const schema = pipe(
       array(mainServiceSchema),
-      check(function duplicateServiceCheck(value, ctx) {
+      check(function duplicateServiceCheck (value, ctx) {
         const services = value.map(ws => ws.service)
         const serviceSet = new Set(services)
         return services.length === serviceSet.size
       }),
-      check(function includeAllOnlineActionCheck(value, ctx) {
+      check(function includeAllOnlineActionCheck (value, ctx) {
         const mainActions = value.map(ws => ws.action)
         return onlineActions.every(a => mainActions.includes(a))
       }),
-      check(function actionInAllActionCheck(value, ctx) {
+      check(function actionInAllActionCheck (value, ctx) {
         const mainActions = value.map(ws => ws.action)
         return mainActions.every(a => allActions.includes(a))
       })
@@ -452,34 +451,34 @@ describe('complex scene', () => {
     try {
       const data = [
         {
-          "action": "action_1",
-          "service": 1200,
-          "childServices": [
+          action: 'action_1',
+          service: 1200,
+          childServices: [
             {
-              "platform": "platform_1",
-              "service": 7787,
-              "weight": 1
+              platform: 'platform_1',
+              service: 7787,
+              weight: 1
             },
             {
-              "platform": "platform_1",
-              "service": 8219,
-              "weight": 0
+              platform: 'platform_1',
+              service: 8219,
+              weight: 0
             }
           ]
         },
         {
-          "action": "action_10",
-          "service": 1200,
-          "childServices": [
+          action: 'action_10',
+          service: 1200,
+          childServices: [
             {
-              "platform": "platform_2",
-              "service": 21417,
-              "weight": 1
+              platform: 'platform_2',
+              service: 21417,
+              weight: 1
             },
             {
-              "platform": "platform_1",
-              "service": 8219,
-              "weight": 0
+              platform: 'platform_1',
+              service: 8219,
+              weight: 0
             }
           ]
         }
